@@ -45,8 +45,8 @@ def RGB_Splitter(random_frame_number):
         print("Blue Split success!!")"""
     return red, green, blue
 
-#def ApplySVD(r,g,b):
-
+def ApplySVD(r,g,b):
+    
 
 # Driver Code 
 if __name__ == '__main__': 
@@ -55,4 +55,4 @@ if __name__ == '__main__':
     FrameCapture("F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Dataset\\Akiyo Video.mp4")
     random_frame = FrameSubtraction()
     r, g, b = RGB_Splitter(random_frame)
-    #ApplySVD(r,g,b)
+    ApplySVD(r,g,b)
