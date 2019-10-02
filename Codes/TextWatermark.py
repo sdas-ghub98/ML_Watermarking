@@ -1,40 +1,39 @@
-import cv2 
-  
+import cv2
+import random
+import os
+
 # Function to extract frames 
 def FrameCapture(path): 
-      
-    # Path to video file 
     vidObj = cv2.VideoCapture(path) 
-  
-    # Used as counter variable 
     count = 0
-  
-    # checks whether frames were extracted 
     success = 1
-  
-    while success: 
-  
-        # vidObj object calls read 
-        # function extract frames 
+
+    while success:
         success, image = vidObj.read() 
-  
-        # Saves the frames with frame-count 
-        cv2.imwrite("frame%d.jpg" % count, image) 
-  
+        cv2.imwrite("F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Dataset\\Frames\\frame%d.jpg" % count, image)
         count += 1
 
-#This function picks one random frame and splits into RGB values
-def Frame_Subtraction():
-    
+def FrameSubtraction():
+    d = random.randrange(0,301,1)
+    rnd_frame_path = "F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Dataset\\Frames\\frame"+str(d)+".jpg"
+    src1 = cv2.imread(rnd_frame_path)
+    for i in range(0,301):
+        if(i == d):
+            continue
+        else:
+            path2 = "F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Dataset\\Frames\\frame"+str(d)+".jpg" 
+            src2 = cv2.imread(path2)
+            im3 = src1 - src2
+            cv2.imwrite("F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Dataset\\Sub_Frames\\sub%d.jpg" % i, im3)
+            #im3.delete()
+    return src1
 
-#This function will apply SVD transformation on the frame 
-def SVD_applier():
-
-#This will combine the RGB frames into one
-def RGB_Combiner():
+def RGB_Splitter(image):
 
 # Driver Code 
 if __name__ == '__main__': 
   
     # Calling the function 
-    FrameCapture("F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Akiyo Video.mp4")
+    FrameCapture("F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Dataset\\Akiyo Video.mp4")
+    random_frame = FrameSubtraction()
+    red, green, blue = RGB_Splitter(random_frame)
