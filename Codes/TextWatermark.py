@@ -24,7 +24,8 @@ def FrameCapture(path):
         count += 1
 
 #This function picks one random frame and splits into RGB values
-def RGB_Splitter(path):
+def Frame_Subtraction():
+    
 
 #This function will apply SVD transformation on the frame 
 def SVD_applier():
@@ -36,4 +37,4 @@ def RGB_Combiner():
 if __name__ == '__main__': 
   
     # Calling the function 
-    FrameCapture("D:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Akiyo Video.mp4") 
+    FrameCapture("F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Akiyo Video.mp4")
