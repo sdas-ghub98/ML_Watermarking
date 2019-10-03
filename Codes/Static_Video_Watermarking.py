@@ -1,7 +1,9 @@
 import cv2
 import random
 import os
+import pywt
 
+location = "F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Dataset\\"
 # Function to extract frames 
 def FrameCapture(path): 
     vidObj = cv2.VideoCapture(path) 
@@ -10,49 +12,43 @@ def FrameCapture(path):
 
     while success:
         success, image = vidObj.read() 
-        cv2.imwrite("F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Dataset\\Frames\\frame%d.jpg" % count, image)
+        cv2.imwrite(location +"Frames\\frame%d.png" % count, image)
         count += 1
     print("Video was split into frames successfully")
+    return count
 
-def FrameSubtraction():
-    d = random.randrange(0,301,1)
-    rnd_frame_path = "F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Dataset\\Frames\\frame"+str(d)+".jpg"
+def FrameSubtraction(npf):
+    d = random.randrange(0,nof,1)
+    print(d)
+    rnd_frame_path = location + "Frames\\frame"+str(d)+".png"
     src1 = cv2.imread(rnd_frame_path)
-    for i in range(0,301):
-        if(i == d):
-            continue
-        else:
-            path2 = "F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Dataset\\Frames\\frame"+str(d)+".jpg" 
-            src2 = cv2.imread(path2)
-            im3 = src1 - src2
-            cv2.imwrite("F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Dataset\\Sub_Frames\\sub%d.jpg" % i, im3)
+    for i in range(0,nof,1):
+        path2 = location +"Frames\\frame"+str(i)+".png" 
+        src2 = cv2.imread(path2)
+        im3 = src2-src1
+        cv2.imwrite(location + "Sub_Frames\\sub%d.png" % i, im3)
             #im3.delete()
     if(d):
         print("Random video frame was selected successfully and frames were subtracted")
     return d
 
 def RGB_Splitter(random_frame_number):
-    path = "F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Dataset\\Frames\\frame"+str(random_frame_number)+".jpg"
+    path = location + "Frames\\frame"+str(random_frame_number)+".png"
     rnd_frame = cv2.imread(path)
     red = rnd_frame[:,:,2]
     green = rnd_frame[:,:,1]
     blue = rnd_frame[:,:,0]
-    """if(red):
-        print("Red Split success!!")
-    if(green):
-        print("Green Split success!!")
-    if(blue):
-        print("Blue Split success!!")"""
     return red, green, blue
 
-def ApplySVD(r,g,b):
+#def ApplySVD(r,g,b):
     
 
 # Driver Code 
 if __name__ == '__main__': 
   
     # Calling the function 
-    FrameCapture("F:\\NIIT University\\4 Year\\Machine Learning\\Term Project\\Dataset\\Akiyo Video.mp4")
-    random_frame = FrameSubtraction()
+    nof = FrameCapture(location + "Akiyo Video.mp4")
+    #for i in range(0,nof,30):
+    random_frame = FrameSubtraction(nof)
     r, g, b = RGB_Splitter(random_frame)
-    ApplySVD(r,g,b)
+    #ApplySVD(r,g,b)
