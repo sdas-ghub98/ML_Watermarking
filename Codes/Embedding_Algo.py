@@ -15,8 +15,8 @@ def FrameCapture(path):
 
     while success:
         success, image = cap.read()
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        cv2.imwrite(location + "/Frames/gray_image%d.png"%count,gray_image)
+        #gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        cv2.imwrite(location + "Frames/image%d.png"%count,image)
         #frames.append(image)
         count += 1    
     print("Video was split into frames successfully")
@@ -25,10 +25,10 @@ def FrameCapture(path):
 
 def FrameSubtraction(nof):
     d = random.randrange(0,nof,1)
-    rnd_frame_path = location + "Frames/gray_image"+str(d)+".png"
+    rnd_frame_path = location+"Frames/image"+str(d)+".png"
     src1 = cv2.imread(rnd_frame_path)
     for i in range(0,nof,1):
-        path2 = location +"Frames/gray_image"+str(i)+".png" 
+        path2 = location+"Frames/image"+str(i)+".png" 
         src2 = cv2.imread(path2)
         im3 = src1-src2
         cv2.imwrite(location + "Sub_Frames/sub%d.png" % i, im3)
@@ -37,17 +37,23 @@ def FrameSubtraction(nof):
     return d
 
 def RGB_Splitter(rf):
-    src = cv2.imread(location + "Frames/gray_image"+str(rf)+".png")
+    src = cv2.imread(location + "Frames/image"+str(rf)+".png")
     red = src[:,:,2]
     green = src[:,:,1]
     blue = src[:,:,0]
+    print(red)
+    print(green)
+    print(blue)
     return red, green, blue
 
 def ApplyDWT(r,g,b):
-    #DWT on the basis/random frame
     cAR,cDR = pywt.dwt(r,'db1')
     cAG,cDG = pywt.dwt(g,'db1')
     cAB,cDB = pywt.dwt(b,'db1')
+    return cAR, cDR, cAG,cDG,cAB,cDB
 
     #Take the HH sub band and apply DWT again here
+
+#def ApplySVD(hR, hG, hB):
+
     #Take the result of this and apply SVD there
