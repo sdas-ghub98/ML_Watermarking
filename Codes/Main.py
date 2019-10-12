@@ -47,11 +47,14 @@ if __name__ == '__main__':
     u7 = u1 + u4
     s7 = s1 + s4
     vt7 = vt1 + vt4
+    vt7 = np.pad(vt7,(0,0),mode='constant')
 
+    #For Green Frame
     u8 = u2 + u5
     s8 = s2 + s5
     vt8 = vt2 + vt5
 
+    #For Blue Frame
     u9 = u3 + u6
     s9 = s3 + s6
     vt9 = vt3 + vt6 

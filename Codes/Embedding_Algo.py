@@ -85,13 +85,13 @@ def ApplySVD(hr,hg,hb):
     return Ur,sr,VTr,Ug,sg,VTg,Ub,sb,VTb
 
 def InverseSVD(u,s,vt):
-    print(u.shape)
-    print(s.shape)
-    print(vt.shape)
-    '''Sigma = diag(s)
+    #print(u.shape)
+    #print(s.shape)
+    #print(vt.shape)
+    Sigma = diag(s)
     B = u.dot(Sigma.dot(vt))
     print("-------------- Inverse SVD applied --------------")
-    return B'''
+    return B
 
 #def IDWT(mat):
 
