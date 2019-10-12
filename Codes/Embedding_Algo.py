@@ -1,7 +1,8 @@
 import cv2
 import random
 import pywt
-from numpy import diag,dot
+from numpy import diag,dot,zeros
+import numpy as np
 from PIL import Image
 from scipy.linalg import svd
 
@@ -11,6 +12,7 @@ frames = []
 red_frames = []
 green_frames = []
 blue_frames = []
+wmkd_frames = []
 
 # Function to extract frames 
 def FrameCapture(path): 
@@ -27,11 +29,7 @@ def FrameCapture(path):
             red_frames.append(red)
             green_frames.append(green)
             blue_frames.append(blue)
-        count += 1
-    
-    for i in range(0,count,1):
-        image = cv2.imread(location+'Frames/image'+str(count)+'.png')
-        
+        count += 1  
     print("--------------Video was split into frames successfully and splitted into RGB frames --------------")
     return count
 
@@ -43,9 +41,12 @@ def Frame_Subtract(nof):
     dr = random.choice(red_frames)
     dg = random.choice(green_frames)
     db = random.choice(blue_frames)
-    sub_red_frames.append(red_frames- dr)
-    sub_green_frames.append(green_frames-dg)
-    sub_blue_frames.append(blue_frames-db)
+    
+    for i in range(0,len(red_frames)):
+        sub_red_frames=red_frames[i]-dr
+        sub_green_frames=green_frames[i]-dg
+        sub_blue_frames = green_frames[i]-db
+    
     print("-------------- Random frames from each channel were selected and subtracted accordingly --------------")
     return sub_red_frames,sub_green_frames,sub_blue_frames,dr,dg,db
 
@@ -84,17 +85,22 @@ def ApplySVD(hr,hg,hb):
     print("-------------- Applying SVD on the HH sub bands successful --------------")
     return Ur,sr,VTr,Ug,sg,VTg,Ub,sb,VTb
 
-def InverseSVD(u,s,vt):
+def InverseSVD(u,s,vt,A):
     #print(u.shape)
     #print(s.shape)
     #print(vt.shape)
-    Sigma = diag(s)
+    Sigma = zeros((A.shape[0],A.shape[1]))
+    Sigma[:A.shape[1],:A.shape[1]] = diag(s)
     B = u.dot(Sigma.dot(vt))
-    print("-------------- Inverse SVD applied --------------")
     return B
 
-#def IDWT(mat):
+def IDWT(mat):
+    temp = pywt.idwt(None,mat, 'db1')
+    return pywt.idwt(temp,None, 'db1')
 
-    
-
-
+def Add_Sub_Frames(wr,wg,wb,sr,sg,sb):
+    for i in range(0,len(sr)):
+        sr[i]=sr[i]+wr
+        sg[i]=sg[i]+wg
+        sb[i]=sb[i]+wb
+    print("So far so good")
