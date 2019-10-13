@@ -10,7 +10,10 @@ if __name__ == '__main__':
     
     #Performing frame subtraction on all the channeas
     #Receiving the sub frames matrices and random frames from R,G and B channels
-    sr,sg,sb,rr,rg,rb= ea.Frame_Subtract(nof)
+    sbf,rf= ea.Frame_Subtract(nof)
+
+    #Split this random frame
+    rr,rg,rb = ea.RGB_Splitter(rf)
 
     #Applying two rounds of DWT on the random frame
     a1,b1,c1 = ea.ApplyDWT_Frames(rr,rg,rb)
@@ -70,4 +73,7 @@ if __name__ == '__main__':
     print("-------------- Inverse DWT applied twice on the RGB channels --------------")
 
     #Reconstructing the watermarked frame
-    ea.Add_Sub_Frames(e1,e2,e3,sr,sg,sb)
+    wmk_frame = ea.Reconstruct_Frame(e1,e2,e3)
+
+    #Adding it to the subtracted frames
+    ea.Add_to_Subtracted_Frames(wmk_frame,nof,sbf)

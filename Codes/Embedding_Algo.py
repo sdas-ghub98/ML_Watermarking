@@ -9,9 +9,6 @@ from scipy.linalg import svd
 location = "F:/NIIT University/4 Year/Machine Learning/Term Project/Dataset/"
 location2 = "F:/NIIT University/4 Year/Machine Learning/Term Project/Dataset/Logo.png"
 frames = []
-red_frames = []
-green_frames = []
-blue_frames = []
 wmkd_frames = []
 
 # Function to extract frames 
@@ -23,32 +20,25 @@ def FrameCapture(path):
     while success:
         success, image = cap.read()
         if success:
-            red = image[:,:,2]
-            green = image[:,:,1]
-            blue = image[:,:,0]    
-            red_frames.append(red)
-            green_frames.append(green)
-            blue_frames.append(blue)
+            frames.append(image)
         count += 1  
     print("--------------Video was split into frames successfully and splitted into RGB frames --------------")
     return count
 
-#Perfprming frame subtraSction by selecting random frame from each channel and subtracting it channel wise
+#Perfprming frame subtraction by selecting random frame from each channel and subtracting it over all channels
 def Frame_Subtract(nof):
-    sub_red_frames = []
-    sub_green_frames = []
-    sub_blue_frames = []
-    dr = random.choice(red_frames)
-    dg = random.choice(green_frames)
-    db = random.choice(blue_frames)
-    
-    for i in range(0,len(red_frames)):
-        sub_red_frames.append(red_frames[i]-dr)
-        sub_green_frames.append(green_frames[i]-dg)
-        sub_blue_frames.append(green_frames[i]-db)
-    
+    sub_frames = []
+    random_frame = random.choice(frames)
+    for i in range(0,len(frames)):
+        sub_frames.append(frames[i]-random_frame)
     print("-------------- Random frames from each channel were selected and subtracted accordingly --------------")
-    return sub_red_frames,sub_green_frames,sub_blue_frames,dr,dg,db
+    return sub_frames, random_frame#,sub_green_frames,sub_blue_frames,dr,dg,db
+
+def RGB_Splitter(rf):
+    red = rf[:,:,2]
+    green = rf[:,:,1]
+    blue = rf[:,:,0]
+    return red,green,blue
 
 def ApplyDWT_Frames(r,g,b):
     LLR1,_ = pywt.dwt(r,'db1')
@@ -65,9 +55,7 @@ def ApplyDWT_Frames(r,g,b):
 
 def RGB_Splitter_Logo():
     src = cv2.imread(location2)
-    red = src[:,:,2]
-    green = src[:,:,1]
-    blue = src[:,:,0]
+    blue, green, red = cv2.split(src)
     print("-------------- Logo splitted successfully --------------")
     return red, green, blue
 
@@ -100,9 +88,15 @@ def IDWT(mat):
     temp = pywt.idwt(None,mat, 'db1')
     return pywt.idwt(temp,None, 'db1')
 
-def Add_Sub_Frames(wr,wg,wb,sr,sg,sb):
-    for i in range(0,len(sr)):
-        sr[i]=sr[i]+wr
-        sg[i]=sg[i]+wg
-        sb[i]=sb[i]+wb
-    print("So far so good")
+def Reconstruct_Frame(wr,wg,wb):
+    wmk_frame = cv2.merge([wr,wg,wb])
+    cv2.imwrite(location+'Watermarked.png',wmk_frame)
+    return wmk_frame
+
+def Add_to_Subtracted_Frames(wmk_frame,n,sfs):
+    for i in range(0,5):
+        wmkd_frames[i] = sfs[i] + wmk_frame
+        cv2.imwrite(location + 'wmk%d'%i, wmkd_frames[i])
+
+
+    
