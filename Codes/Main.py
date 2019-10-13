@@ -10,7 +10,7 @@ if __name__ == '__main__':
     
     #Performing frame subtraction on all the channeas
     #Receiving the sub frames matrices and random frames from R,G and B channels
-    sr,sg,sb,rr,rg,rb = ea.Frame_Subtract(nof)
+    sr,sg,sb,rr,rg,rb= ea.Frame_Subtract(nof)
 
     #Applying two rounds of DWT on the random frame
     a1,b1,c1 = ea.ApplyDWT_Frames(rr,rg,rb)

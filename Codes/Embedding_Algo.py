@@ -33,7 +33,7 @@ def FrameCapture(path):
     print("--------------Video was split into frames successfully and splitted into RGB frames --------------")
     return count
 
-#Perfprming frame subtraction by selecting random frame from each channel and subtracting it channel wise
+#Perfprming frame subtraSction by selecting random frame from each channel and subtracting it channel wise
 def Frame_Subtract(nof):
     sub_red_frames = []
     sub_green_frames = []
@@ -43,9 +43,9 @@ def Frame_Subtract(nof):
     db = random.choice(blue_frames)
     
     for i in range(0,len(red_frames)):
-        sub_red_frames=red_frames[i]-dr
-        sub_green_frames=green_frames[i]-dg
-        sub_blue_frames = green_frames[i]-db
+        sub_red_frames.append(red_frames[i]-dr)
+        sub_green_frames.append(green_frames[i]-dg)
+        sub_blue_frames.append(green_frames[i]-db)
     
     print("-------------- Random frames from each channel were selected and subtracted accordingly --------------")
     return sub_red_frames,sub_green_frames,sub_blue_frames,dr,dg,db
@@ -89,7 +89,9 @@ def InverseSVD(u,s,vt,A):
     #print(u.shape)
     #print(s.shape)
     #print(vt.shape)
+    
     Sigma = zeros((A.shape[0],A.shape[1]))
+    #Sigma=np.pad(Sigma,(44,44),mode='constant')
     Sigma[:A.shape[1],:A.shape[1]] = diag(s)
     B = u.dot(Sigma.dot(vt))
     return B
