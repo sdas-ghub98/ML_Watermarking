@@ -1,7 +1,7 @@
 import cv2
 import random
 import pywt
-from numpy import diag,dot,zeros
+from numpy import diag,dot,zeros,array,linalg
 import numpy as np
 from PIL import Image
 from scipy.linalg import svd
@@ -21,23 +21,23 @@ def FrameCapture(path):
         success, image = cap.read()
         if success:
             frames.append(image)
-        count += 1  
-    print("--------------Video was split into frames successfully and splitted into RGB frames --------------")
-    return count
+            count += 1  
+    Frames = array(frames)
+    print("-------------- Video was split into frames successfully and splitted into RGB frames --------------")
+    return count,Frames
 
 #Perfprming frame subtraction by selecting random frame from each channel and subtracting it over all channels
-def Frame_Subtract(nof):
+def Frame_Subtract(nof,Frames):
     sub_frames = []
-    random_frame = random.choice(frames)
-    for i in range(0,len(frames)):
+    random_frame = random.choice(Frames)
+    for i in range(0,len(Frames)):
         sub_frames.append(frames[i]-random_frame)
     print("-------------- Random frames from each channel were selected and subtracted accordingly --------------")
-    return sub_frames, random_frame#,sub_green_frames,sub_blue_frames,dr,dg,db
+    Sub_frames = array(sub_frames)
+    return Sub_frames, random_frame#,sub_green_frames,sub_blue_frames,dr,dg,db
 
 def RGB_Splitter(rf):
-    red = rf[:,:,2]
-    green = rf[:,:,1]
-    blue = rf[:,:,0]
+    blue, green, red = cv2.split(rf)
     return red,green,blue
 
 def ApplyDWT_Frames(r,g,b):
@@ -57,7 +57,7 @@ def RGB_Splitter_Logo():
     src = cv2.imread(location2)
     blue, green, red = cv2.split(src)
     print("-------------- Logo splitted successfully --------------")
-    return red, green, blue
+    return red,green,blue
 
 def ApplyDWT_Logo(r,g,b):
     _, HHR = pywt.dwt(r,'db1')
@@ -66,22 +66,16 @@ def ApplyDWT_Logo(r,g,b):
     print("-------------- DWT applied on Logo --------------")
     return HHR,HHG,HHB
 
-def ApplySVD(hr,hg,hb):
-    Ur, sr, VTr = svd(hr)
-    Ug, sg, VTg = svd(hg)
-    Ub, sb, VTb = svd(hb)
+def ApplySVD(mat):
+    U, S, VT = svd(mat, full_matrices=True)
     print("-------------- Applying SVD on the HH sub bands successful --------------")
-    return Ur,sr,VTr,Ug,sg,VTg,Ub,sb,VTb
+    return U,S,VT
 
 def InverseSVD(u,s,vt,A):
-    #print(u.shape)
-    #print(s.shape)
-    #print(vt.shape)
-    
-    Sigma = zeros((A.shape[0],A.shape[1]))
-    #Sigma=np.pad(Sigma,(44,44),mode='constant')
-    Sigma[:A.shape[1],:A.shape[1]] = diag(s)
+    Sigma = zeros((A.shape[0], A.shape[1]))
+    Sigma[:A.shape[1], :A.shape[1]] = diag(s)
     B = u.dot(Sigma.dot(vt))
+    print("-------------- Inverse SVD applied successfully --------------")
     return B
 
 def IDWT(mat):
@@ -95,8 +89,6 @@ def Reconstruct_Frame(wr,wg,wb):
 
 def Add_to_Subtracted_Frames(wmk_frame,n,sfs):
     for i in range(0,5):
+        #sfs[i] = np.zeros((264,704,3),dtype=int)
         wmkd_frames[i] = sfs[i] + wmk_frame
         cv2.imwrite(location + 'wmk%d'%i, wmkd_frames[i])
-
-
-    
