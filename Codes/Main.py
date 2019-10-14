@@ -64,9 +64,9 @@ if __name__ == '__main__':
 
     #Reconstructing three SVD matrixes for R,G and B channels separately
     
-    d1 = ea.InverseSVD(u7,s7,vt7,a2)
-    d2 = ea.InverseSVD(u8,s8,vt8,b2)
-    d3 = ea.InverseSVD(u9,s9,vt9,c2)
+    d1 = ea.InverseSVD(u7,s7,vt7)
+    d2 = ea.InverseSVD(u8,s8,vt8)
+    d3 = ea.InverseSVD(u9,s9,vt9)
 
     print("-------------- Inverse SVDs calculcated on the RGB channels --------------")
 

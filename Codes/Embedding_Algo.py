@@ -71,10 +71,13 @@ def ApplySVD(mat):
     print("-------------- Applying SVD on the HH sub bands successful --------------")
     return U,S,VT
 
-def InverseSVD(u,s,vt,A):
-    Sigma = zeros((A.shape[0], A.shape[1]))
-    Sigma[:A.shape[1], :A.shape[1]] = diag(s)
-    B = u.dot(Sigma.dot(vt))
+def InverseSVD(u,s,vt):
+    m,_ = u.shape
+    n,_ = vt.shape
+    Sigma = np.zeros((m,n))
+    for i in range(min(m,n)):
+        Sigma[i,i] = s[i]
+    B = np.dot(u,np.dot(Sigma,vt))
     print("-------------- Inverse SVD applied successfully --------------")
     return B
 
