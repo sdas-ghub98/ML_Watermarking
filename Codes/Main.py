@@ -23,13 +23,13 @@ if __name__ == '__main__':
     u2,s2,vt2 = ea.ApplySVD(b1)
     u3,s3,vt3 = ea.ApplySVD(c1)
     
-    s1 = np.pad(s1,(44),mode='constant')
+    '''s1 = np.pad(s1,(44),mode='constant')
     s2 = np.pad(s2,(44),mode='constant')
     s3 = np.pad(s3,(44),mode='constant')
 
     vt1 = np.pad(vt1,(44,44),mode='constant')
     vt2 = np.pad(vt2,(44,44),mode='constant')
-    vt3 = np.pad(vt3,(44,44),mode='constant')
+    vt3 = np.pad(vt3,(44,44),mode='constant')'''
 
 
     #Processing the logo by first doing the RGB split
@@ -46,19 +46,19 @@ if __name__ == '__main__':
     #Now adding the SVD matrices
     
     #For Red Frame
-    u7 = u1 + u4
-    s7 = s1 + s4
-    vt7 = vt1 + vt4
+    u7 = ea.Singular_U_Adder(u1,u4)
+    s7 = ea.Singular_S_Adder(s1,s4)
+    vt7 = ea.Singular_VT_Adder(vt1,vt4)
 
     #For Green Frame
-    u8 = u2 + u5
-    s8 = s2 + s5
-    vt8 = vt2 + vt5
+    u8 = ea.Singular_U_Adder(u2,u5)
+    s8 = ea.Singular_S_Adder(s2,s5)
+    vt8 = ea.Singular_VT_Adder(vt2,vt5)
 
     #For Blue Frame
-    u9 = u3 + u6
-    s9 = s3 + s6
-    vt9 = vt3 + vt6
+    u9 = ea.Singular_U_Adder(u3,u6)
+    s9 = ea.Singular_S_Adder(s3,s6)
+    vt9 = ea.Singular_VT_Adder(vt3,vt6)
 
     print("-------------- Sums done! --------------")
 
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     e2 = ea.IDWT(d2)
     e3 = ea.IDWT(d3)
 
-    #print("-------------- Inverse DWT applied twice on the RGB channels --------------")
+    print("-------------- Inverse DWT applied twice on the RGB channels --------------")
 
     #Reconstructing the watermarked frame
     wmk_frame = ea.Reconstruct_Frame(e1,e2,e3)

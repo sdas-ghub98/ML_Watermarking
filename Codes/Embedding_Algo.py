@@ -10,6 +10,7 @@ location = "F:/NIIT University/4 Year/Machine Learning/Term Project/Dataset/"
 location2 = "F:/NIIT University/4 Year/Machine Learning/Term Project/Dataset/Logo.png"
 frames = []
 wmkd_frames = []
+alpha = 0.1
 
 # Function to extract frames 
 def FrameCapture(path): 
@@ -71,6 +72,32 @@ def ApplySVD(mat):
     print("-------------- Applying SVD on the HH sub bands successful --------------")
     return U,S,VT
 
+def Singular_U_Adder(u1,u2):
+    m,_ = u1.shape
+    n,_ = u2.shape
+    u3 = np.zeros((m,n))
+    for y in range(0,n):
+        for x in range(0,m):
+            u3[y][x] = u1[y][x] + 0.1*u2[y][x]
+    return u3
+
+def Singular_S_Adder(s1,s2):
+    m = s1.shape[0]
+    n = s2.shape[0]
+    s3 = np.zeros((min(m,n)),dtype=int)
+    for y in range(0,min(m,n)):
+            s3[y] = s1[y] + 0.1*s2[y]
+    return s3
+
+def Singular_VT_Adder(vt1,vt2):
+    m,_ = vt1.shape
+    n,_ = vt2.shape
+    vt3 = np.zeros((m,m))
+    for y in range(0,m):
+        for x in range(0,m):
+            vt3[y][x] = vt1[y][x] + 0.1*vt2[y][x]
+    return vt3
+ 
 def InverseSVD(u,s,vt):
     m,_ = u.shape
     n,_ = vt.shape
@@ -78,7 +105,6 @@ def InverseSVD(u,s,vt):
     for i in range(min(m,n)):
         Sigma[i,i] = s[i]
     B = np.dot(u,np.dot(Sigma,vt))
-    print("-------------- Inverse SVD applied successfully --------------")
     return B
 
 def IDWT(mat):
@@ -91,7 +117,11 @@ def Reconstruct_Frame(wr,wg,wb):
     return wmk_frame
 
 def Add_to_Subtracted_Frames(wmk_frame,n,sfs):
+    a = sfs.shape[0]
     for i in range(0,5):
-        #sfs[i] = np.zeros((264,704,3),dtype=int)
-        wmkd_frames[i] = sfs[i] + wmk_frame
-        cv2.imwrite(location + 'wmk%d'%i, wmkd_frames[i])
+        image = sfs[i]+wmk_frame
+        print('Watermark added to the subtracted frame')
+        wmkd_frames.append(image)
+        print('Added to the list')
+        cv2.imwrite(location + 'Wmk%d.png' % i,image)
+        print('Written to file system')
