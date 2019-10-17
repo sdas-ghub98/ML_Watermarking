@@ -7,13 +7,10 @@ if __name__ == '__main__':
     #EMBEDDING ALGORITHM
 
     #Splitting the video frames and then splitting them on RGB frames
-    nof,Frames = ea.FrameCapture(ea.location + "Akiyo Video.mp4")
+    nof,R,G,B = ea.FrameCapture(ea.location + "Akiyo Video.mp4")
     
     #Performing frame subtraction on all the channels
-    sbf,rf= ea.Frame_Subtract(nof,Frames)
-
-    #Split this random frame
-    rr,rg,rb = ea.RGB_Splitter(rf)
+    sbrf,sbgf,sbbf,rr,rg,rb = ea.Frame_Subtract(nof,R,G,B)
 
     #Applying two rounds of DWT on the random frame
     a1,b1,c1 = ea.ApplyDWT_Frames(rr,rg,rb)
@@ -23,25 +20,11 @@ if __name__ == '__main__':
     u2,s2,vt2 = ea.ApplySVD(b1)
     u3,s3,vt3 = ea.ApplySVD(c1)
     
-    '''s1 = np.pad(s1,(44),mode='constant')
-    s2 = np.pad(s2,(44),mode='constant')
-    s3 = np.pad(s3,(44),mode='constant')
-
-    vt1 = np.pad(vt1,(44,44),mode='constant')
-    vt2 = np.pad(vt2,(44,44),mode='constant')
-    vt3 = np.pad(vt3,(44,44),mode='constant')'''
-
-
-    #Processing the logo by first doing the RGB split
-    r2,g2,b2 = ea.RGB_Splitter_Logo()
-
     #Applying DWT once on the splitted logo and acquiring the HH sub band
-    a2,b2,c2 = ea.ApplyDWT_Logo(r2,g2,b2)
+    a2 = ea.ApplyDWT_Logo()
 
     #Applying SVD once on the HH sub DWT-ized logo
     u4,s4,vt4 = ea.ApplySVD(a2)
-    u5,s5,vt5 = ea.ApplySVD(b2)
-    u6,s6,vt6, = ea.ApplySVD(c2)
     
     #Now adding the SVD matrices
     
@@ -51,14 +34,14 @@ if __name__ == '__main__':
     vt7 = ea.Singular_VT_Adder(vt1,vt4)
 
     #For Green Frame
-    u8 = ea.Singular_U_Adder(u2,u5)
-    s8 = ea.Singular_S_Adder(s2,s5)
-    vt8 = ea.Singular_VT_Adder(vt2,vt5)
+    u8 = ea.Singular_U_Adder(u2,u4)
+    s8 = ea.Singular_S_Adder(s2,s4)
+    vt8 = ea.Singular_VT_Adder(vt2,vt4)
 
     #For Blue Frame
-    u9 = ea.Singular_U_Adder(u3,u6)
-    s9 = ea.Singular_S_Adder(s3,s6)
-    vt9 = ea.Singular_VT_Adder(vt3,vt6)
+    u9 = ea.Singular_U_Adder(u3,u4)
+    s9 = ea.Singular_S_Adder(s3,s4)
+    vt9 = ea.Singular_VT_Adder(vt3,vt4)
 
     print("-------------- Sums done! --------------")
 
@@ -70,7 +53,7 @@ if __name__ == '__main__':
 
     print("-------------- Inverse SVDs calculcated on the RGB channels --------------")
 
-    #Applying inverse DWT to the reconstructed frames
+    #Treat these matrices as High value and obtain the SVD
     e1 = ea.IDWT(d1)
     e2 = ea.IDWT(d2)
     e3 = ea.IDWT(d3)
@@ -81,4 +64,4 @@ if __name__ == '__main__':
     wmk_frame = ea.Reconstruct_Frame(e1,e2,e3)
 
     #Adding it to the subtracted frames
-    ea.Add_to_Subtracted_Frames(wmk_frame,nof,sbf)
+    ea.Add_to_Subtracted_Frames(wmk_frame,nof,sbrf,sbgf,sbbf)
