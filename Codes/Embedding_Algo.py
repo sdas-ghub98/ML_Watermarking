@@ -1,67 +1,53 @@
 import cv2
 import random
 import pywt
-from numpy import dot,zeros,array,linalg,reshape,transpose
+from numpy import dot,zeros,array,ndarray,resize
 from scipy.linalg import svd
-
 
 location = "../Dataset/"
 location2 = "../Dataset/Logo.png"
-alpha = 0.1
-frames = []
-wmkd_frames = []
-red_frames =[]
-green_frames = []
-blue_frames = []
 
 # Function to extract frames 
 def FrameCapture(path): 
-    cap = cv2.VideoCapture(path) 
-    success, image = cap.read()
+    frames = []
+    red_frames =[]
+    green_frames = []
+    blue_frames = []
+    cap = cv2.VideoCapture(path)  
     count = 0
     success = 1
     while success:
         success, image = cap.read()
         if success:
-            #frames.append(image)
+            frames.append(image)
             b,g,r = cv2.split(image)
             red_frames.append(r)
             green_frames.append(g)
             blue_frames.append(b)
             count += 1  
-    #Frames = array(frames)
-    Red = array(red_frames)
-    Green = array(green_frames)
-    Blue = array(blue_frames)
+    rf = random.choice(frames)
     print("-------------- Video was split into frames successfully and splitted into RGB frames --------------")
-    return count,Red, Green, Blue
+    return count,red_frames, green_frames, blue_frames,rf
 
 #Perfprming frame subtraction by selecting random frame from each channel and subtracting it over all channels
-def Frame_Subtract(nof,Red,Green,Blue):
-    sub_red_frames = []
-    sub_green_frames = []
-    sub_blue_frames = []
-    dr = random.choice(Red)
-    dg = random.choice(Green)
-    db = random.choice(Blue)
-    cv2.imwrite(location+'Random_Red.png',dr)
-    cv2.imwrite(location+'Random_Green.png',dg)
-    cv2.imwrite(location+'Random_Blue.png',db)
+def Frame_Subtract(nof,Red,Green,Blue,rf):
+    SR = []
+    SG = []
+    SB = []
+    rb,rg,rr = cv2.split(rf)
 
-    for i in range(0,len(Red)):
-        sub_red_frames.append(Red[i]-dr)
-        sub_green_frames.append(Green[i]-dg)
-        sub_blue_frames.append(Blue[i]-db)
-    SR = array(sub_red_frames)
-    SG = array(sub_green_frames)
-    SB = array(sub_blue_frames)
+    for i in range(0,nof):
+        SR.append(cv2.subtract(Red[i],rb))
+        SG.append(cv2.subtract(Green[i],rg))
+        SB.append(cv2.subtract(Blue[i],rr))
+    
     print("-------------- Random frames from each channel were selected and subtracted accordingly --------------")
-
-    return SR,SG,SB,dr,dg,db
+    return SR,SG,SB
 
 #Function that applies DWT twice on the frames
-def ApplyDWT_Frames(r,g,b):
-    
+def ApplyDWT_Frames(rf):
+    b,g,r = cv2.split(rf)
+
     LLR1,_ = pywt.dwt(r,'db1')
     LLG1,_ = pywt.dwt(g,'db1')
     LLB1,_ = pywt.dwt(b,'db1')
@@ -71,7 +57,7 @@ def ApplyDWT_Frames(r,g,b):
     _,HHG2 = pywt.dwt(LLG1,'db1')
     _,HHB2 = pywt.dwt(LLB1,'db1')
 
-    print("-------------- DWT applied twice once on normal and then on LL sub band. Returning the HH sub bands --------------")
+    print("-------------- DWT applied twice on frames (once on normal and then on LL sub band.) Returning the HH sub bands --------------")
     return HHR2,HHG2,HHB2
         
 #Applying single round of DWT to the logo image
@@ -88,56 +74,41 @@ def ApplySVD(mat):
     print("-------------- Applying SVD on the HH sub bands successful --------------")
     return U,S,VT
 
-def Singular_U_Adder(u1,u2):
-    m,_ = u1.shape
-    n,_ = u2.shape
-    u3 = zeros((m,n))
-    for y in range(0,n):
-        for x in range(0,m):
-            u3[y][x] = u1[y][x] + 0.1*u2[y][x]
-    return u3
-
+#Function to add the singular matrix S
 def Singular_S_Adder(s1,s2):
-    m = s1.shape[0]
-    n = s2.shape[0]
-    s3 = zeros((min(m,n)),dtype=int)
-    for y in range(0,min(m,n)):
-            s3[y] = s1[y] + 0.1*s2[y]
+    a = resize(s2,(88,))
+    s3 = s1 + a
     return s3
-
-def Singular_VT_Adder(vt1,vt2):
-    m,_ = vt1.shape
-    n,_ = vt2.shape
-    vt3 = zeros((m,m))
-    for y in range(0,m):
-        for x in range(0,m):
-            vt3[y][x] = vt1[y][x] + 0.1*vt2[y][x]
-    return vt3
  
-def InverseSVD(u,s,vt):
-    m,_ = u.shape
-    n,_ = vt.shape
+#Function to calculate inverse SVD
+def InverseSVD(u1,vt1,u2,vt2,s3):
+    m,_ = u1.shape
+    n,_ = vt1.shape
     Sigma = zeros((m,n))
     for i in range(min(m,n)):
-        Sigma[i,i] = s[i]
-    B = dot(u,dot(Sigma,vt))
+        Sigma[i,i] = s3[i]
+    B = dot(u1,dot(Sigma,vt1))
     return B
 
+#Function to calculate inverse DWT
 def IDWT(mat):
-    return pywt.idwt(None,mat, 'db1')
+    temp = pywt.idwt(mat, None,'db1')
+    temp2 = pywt.idwt(None,temp,'db1') 
+    return temp2
 
-def Reconstruct_Frame(wr,wg,wb):
-    wmk_frame = cv2.merge([wb,wg,wr])
-    cv2.imwrite(location+'Watermarked.png',wmk_frame)
-    return wmk_frame
+#Function to add the watermark on each channel of subtracted frames
+def Add_to_Subtracted_Frames(wr,wg,wb,sbrf,sbgf,sbbf,nof):
+    wmkd_frames = []
+    temp = cv2.merge((wr,wg,wb))
+    for i in range(0,len(sbrf)):
+        wR = cv2.add(sbrf[i],wr,dtype=cv2.CV_64F)
+        wG = cv2.add(sbgf[i],wg,dtype=cv2.CV_64F)
+        wB = cv2.add(sbbf[i],wb,dtype=cv2.CV_64F)
+        temp2 = cv2.merge((wR,wG,wB))
+        final = cv2.add(temp,temp2,dtype=cv2.CV_64F)
+        cv2.imshow('Final frame', final)
+        cv2.waitKey(30)
+        cv2.destroyAllWindows()
+        wmkd_frames.append(final)
 
-def Add_to_Subtracted_Frames(wmk_frame,n,sbrf,sbgf,sbbf):
-    for i in range(0,5):
-        sub_frame = cv2.merge([sbbf[i],sbgf[i],sbrf[i]])
-        print(sub_frame.shape) # (264, 352, 3)
-        print(wmk_frame.shape) # (264, 176, 3)
-        #SHRUTI - Write the code here to add element by element
-        wmkd_frames.append(wmk_frame + sub_frame)
-        cv2.imwrite(location + 'Wmk%d.png'%i,wmkd_frames[i])
-    
-    
+
