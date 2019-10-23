@@ -1,7 +1,7 @@
 import cv2
 import random
 import pywt
-from numpy import dot,zeros,array,ndarray,resize
+from numpy import dot,zeros,array,ndarray,resize,uint8
 from scipy.linalg import svd
 
 location = "../Dataset/"
@@ -26,6 +26,7 @@ def FrameCapture(path):
             blue_frames.append(b)
             count += 1  
     rf = random.choice(frames)
+    # cv2.imwrite(location + 'Random Frame.png',rf)
     # cv2.imshow('Red Frame',red_frames[0])
     # cv2.waitKey(1000)
     # cv2.imshow('Green Frame',green_frames[0])
@@ -72,46 +73,51 @@ def ApplyDWT_Frames(rf):
     # cv2.destroyAllWindows()
 
     # Taking the original matrix and taking the cA(LL) values from DWT
-    LLR1,_ = pywt.dwt(r,'db1')
-    LLG1,_ = pywt.dwt(g,'db1')
-    LLB1,_ = pywt.dwt(b,'db1')
+    LLR1,HHR1 = pywt.dwt(r,'db1')
+    LLG1,HHG1 = pywt.dwt(g,'db1')
+    LLB1,HHB1 = pywt.dwt(b,'db1')
+
+    # tR = pywt.idwt(LLR1,HHR1,'db1').astype(uint8)
+    # tG = pywt.idwt(LLG1,HHG1,'db1')
+    # tB = pywt.idwt(LLB1,HHB1,'db1')
 
     # cv2.imshow('Red DWT Frame',LLR1)
-    # cv2.waitKey(1000)
+    # cv2.waitKey(4000)
     # cv2.imshow('Green DWT Frame',LLG1)
     # cv2.waitKey(1000)
     # cv2.imshow('Blue DWT Frame',LLB1)
     # cv2.waitKey(1000)
     # cv2.destroyAllWindows()    
+    # mat = pywt.idwt(LLR1,HHR1,'db1')
 
-    #Take the HH sub band and apply DWT again here
-    _,HHR2 = pywt.dwt(LLR1,'db1')
-    _,HHG2 = pywt.dwt(LLG1,'db1')
-    _,HHB2 = pywt.dwt(LLB1,'db1')
-
-    # cv2.imshow('Red DWT Frame',HHR2)
-    # cv2.waitKey(1000)
-    # cv2.imshow('Green DWT Frame',HHG2)
-    # cv2.waitKey(1000)
-    # cv2.imshow('Blue DWT Frame',HHB2)
-    # cv2.waitKey(1000)
+    # cv2.imshow('Reconstructed',mat)
+    # cv2.waitKey(4000)
     # cv2.destroyAllWindows()
 
+    #Take the HH sub band and apply DWT again here
+    LLR2,HHR2 = pywt.dwt(LLR1,'db1')
+    LLG2,HHG2 = pywt.dwt(LLG1,'db1')
+    LLB2,HHB2 = pywt.dwt(LLB1,'db1')
+
+    # cv2.imshow('Red DWT Frame',HHR2)
+    # cv2.waitKey(4000)
+
     print("-------------- DWT applied twice on frames (once on normal and then on LL sub band.) Returning the HH sub bands --------------")
-    return HHR2,HHG2,HHB2
+    return LLR1,HHR1,LLR2,HHR2,LLG1,HHG1,LLG2,HHG2,LLB1,HHB1,LLB2,HHB2
+    # return HHR2,HHG2,HHB2
         
 #Applying two rounds of DWT to the logo image
 def ApplyDWT_Logo():
     wmk_image = cv2.imread(location2)
     gray_wmk = cv2.cvtColor(wmk_image,cv2.COLOR_BGR2GRAY)
-    LLLogo,HHLogo = pywt.dwt(gray_wmk,'db1')
-    # _,HHLogo = pywt.dwt(LLLogo,'db1')
+    LL1,_ = pywt.dwt(gray_wmk,'db1')
+    _,HH2 = pywt.dwt(LL1,'db1')
 
     # cv2.imshow('Logo DWTized Frame',HHLogo)
     # cv2.waitKey(1000)
     # cv2.destroyAllWindows()
     print("-------------- DWT applied on Logo --------------")
-    return HHLogo
+    return HH2
 
 # Function to apply SVD on the matrice passed as a parameter
 def ApplySVD(mat):
@@ -121,8 +127,9 @@ def ApplySVD(mat):
 
 #Function to add the singular matrix S
 def Singular_S_Adder(s1,s2):
-    a = resize(s2,s1.shape)
-    s3 = cv2.add(s1,a)
+    # a = resize(s2,s1.shape)
+    # s3 = cv2.add(0.1*s1,0.1*s2)
+    s3 = s1+s2
     # cv2.imshow('Watermarked S matrice',s3)
     # cv2.waitKey(1000)
     # cv2.destroyAllWindows()
@@ -141,34 +148,28 @@ def InverseSVD(u1,vt1,u2,vt2,s3):
     return B
 
 #Function to calculate inverse DWT
-def IDWT(mat):
-    temp = pywt.idwt(mat,None,'db1')
-    temp2 = pywt.idwt(None,temp, 'db1')
-    print('-------------- Inverse DWT applied --------------')
+def IDWT(a,b,c):
+    temp = pywt.idwt(b,a,'db1')
+    # print(temp.shape)
+    temp2 = pywt.idwt(temp,c, 'db1')
+    # print(temp2.shape)
+    # print('-------------- Inverse DWT applied --------------')
     return temp2
 
 #Function to add the watermark on each channel of subtracted frames
-def Add_to_Subtracted_Frames(wr,wg,wb,sbrf,sbgf,sbbf,nof):
+def Add_to_Subtracted_Frames(wf,sbrf,sbgf,sbbf,nof):
     wmkd_frames = []
-    # print(wr.shape)
-    # print(type(wr))
-    # print(sbrf[0].shape)
-    # print(type(sbrf[0]))
-    for i in range(0,4):
-        # wRGB = cv2.merge((sbrf[i],sbgf[i],sbbf[i]))
-        # temp = cv2.add(wRGB,f,dtype=cv2.CV_64F) 
-        # temp2 = cv2.merge((wR,wG,wB))
-        # final = cv2.add(temp,temp2,dtype=cv2.CV_64F)
-        t1 = cv2.add(sbrf[i],wr,dtype=cv2.CV_64F)
-        t2 = cv2.add(sbgf[i],wg,dtype=cv2.CV_64F)
-        t3 = cv2.add(sbrf[i],wb,dtype=cv2.CV_64F)
-        cv2.imshow('Final red frame', t1)
-        cv2.waitKey(1000)
-        cv2.destroyAllWindows()
-        cv2.imshow('Final green frame', t2)
-        cv2.waitKey(1000)
-        cv2.destroyAllWindows()
-        cv2.imshow('Final blue frame', t3)
-        cv2.waitKey(1000)
-        cv2.destroyAllWindows()
-        # wmkd_frames.append(temp)
+    for i in range(0,nof,1):
+        sub = cv2.merge((sbbf[i],sbgf[i],sbrf[i]))
+        t = cv2.add(sub,wf)
+        wmkd_frames.append(t)
+    return wmkd_frames
+
+def Create_Video_From_Frames(wmkd_frames):
+    fps = 30
+    x,y,z = wmkd_frames[0].shape
+    size = (y,x)
+    out = cv2.VideoWriter(location + 'Watermarked Video.avi',cv2.VideoWriter_fourcc(*'DIVX'), fps, size)
+    for i in range(0,len(wmkd_frames)):
+        out.write(wmkd_frames[i])
+    out.release()

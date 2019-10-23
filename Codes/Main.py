@@ -14,12 +14,12 @@ if __name__ == '__main__':
     sbrf,sbgf,sbbf = ea.Frame_Subtract(nof,R,G,B,rf)
 
     #Applying two rounds of DWT on the random frame
-    a1,b1,c1 = ea.ApplyDWT_Frames(rf)
+    LLR1,HHR1,LLR2,HHR2,LLG1,HHG1,LLG2,HHG2,LLB1,HHB1,LLB2,HHB2 = ea.ApplyDWT_Frames(rf)
 
     #Applying SVD on the random frame
-    u1,s1,vt1 = ea.ApplySVD(a1)
-    u2,s2,vt2 = ea.ApplySVD(b1)
-    u3,s3,vt3 = ea.ApplySVD(c1)
+    u1,s1,vt1 = ea.ApplySVD(HHR2)
+    u2,s2,vt2 = ea.ApplySVD(HHG2)
+    u3,s3,vt3 = ea.ApplySVD(HHB2)
     
     # cv2.imshow('Red SVD U Frame',u1)
     # cv2.waitKey(1000)
@@ -74,44 +74,23 @@ if __name__ == '__main__':
     print("-------------- Inverse SVDs calculcated on the RGB channels --------------")
     
     # Treat these matrices as HH value and compute the inverse DWT twice on them
-    eR = ea.IDWT(dR)
-    eG = ea.IDWT(dG)
-    eB = ea.IDWT(dB)
-    f = cv2.merge((eR,eG,eB))
-    # cv2.imshow('IDWT R frame',eR)
-    # cv2.waitKey(1000)
-    # cv2.imshow('IDWT G frame',eG)
-    # cv2.waitKey(1000)
-    # cv2.imshow('IDWT B frame',eB)
-    # cv2.waitKey(1000)
-    cv2.imshow('IDWT Merged frame',f)
-    cv2.waitKey(4000)
-    cv2.destroyAllWindows()
+    eR = ea.IDWT(dR,LLR2,HHR1)
+    eG = ea.IDWT(dG,LLG2,HHG1)
+    eB = ea.IDWT(dB,LLB2,HHB1)
+    f = cv2.merge((eB,eG,eR)).astype(np.uint8)
+    
+    # cv2.imshow('Reconstructed frame',f)
+    # cv2.waitKey(3000)
+    # cv2.destroyAllWindows()
 
     print("-------------- Inverse DWT applied twice on the RGB channels --------------")
-    
-    # If we take the random frame, split into RGB and then add the modified RGB values to the original values and merge again
-    # b2,g2,r2 = cv2.split(rf)
-    # R = cv2.add(eR,r2,dtype=cv2.CV_64F)
-    # G = cv2.add(eG,g2,dtype=cv2.CV_64F)
-    # B = cv2.add(eB,b2,dtype=cv2.CV_64F)
-    # h = cv2.merge((R,G,B))
-    # cv2.imshow('Watermarked Frame',h)
-    # cv2.waitKey(5000)
-    # cv2.destroyAllWindows()
-
-    # t = cv2.add(sbrf[0],f,cv2.CV_64F)
-    # cv2.imshow('Red Subtracted Merged frame',t)
-    # cv2.waitKey(1000)
-    
-    # cv2.destroyAllWindows()
-    # t = cv2.add(sb,eB)
-    # b2,g2,r2 = cv2.split(rf)
-    # B = cv2.add(t,b2,dtype=cv2.CV_64F)
-    # f = cv2.merge((r2,g2,B))
-    # cv2.imshow('Watermarked random frame',f)
-    # cv2.waitKey(4000)
-    # cv2.destroyAllWindows()
 
     # Reconstructing the watermarked frame
-    ea.Add_to_Subtracted_Frames(eR,eG,eB,sbrf,sbgf,sbbf,nof)
+    watermarked_frames = ea.Add_to_Subtracted_Frames(f,sbrf,sbgf,sbbf,nof)
+
+    print("-------------- Watermarked frames constructed --------------")
+
+    ea.Create_Video_From_Frames(watermarked_frames)
+
+    print("-------------- Watermarked video constructed --------------")
+    
