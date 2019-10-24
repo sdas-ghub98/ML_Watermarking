@@ -1,10 +1,13 @@
 import Embedding_Algo as ea
 import numpy as np
 import cv2
+import timeit
 
 if __name__ == '__main__': 
     
     #EMBEDDING ALGORITHM
+
+    start = timeit.default_timer()
 
     #Splitting the video frames and then splitting them into RGB frames
     nof,R,G,B,rf = ea.FrameCapture(ea.location + "Akiyo Video.mp4")
@@ -92,5 +95,9 @@ if __name__ == '__main__':
 
     ea.Create_Video_From_Frames(watermarked_frames)
 
+
     print("-------------- Watermarked video constructed --------------")
     
+    stop = timeit.default_timer()
+
+    print('Total time taken for embedding algo to work : ',stop-start,'seconds')
