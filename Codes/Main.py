@@ -10,7 +10,6 @@ if __name__ == '__main__':
     nof,R,G,B,rf = ea.FrameCapture(ea.location + "Akiyo Video.mp4")
     
     #Performing frame subtraction on all the channels and returning them as lists
-    #r,g,b = The original random frame in 3 channels
     sbrf,sbgf,sbbf = ea.Frame_Subtract(nof,R,G,B,rf)
 
     #Applying two rounds of DWT on the random frame
@@ -77,6 +76,8 @@ if __name__ == '__main__':
     eR = ea.IDWT(dR,LLR2,HHR1)
     eG = ea.IDWT(dG,LLG2,HHG1)
     eB = ea.IDWT(dB,LLB2,HHB1)
+    
+    #Merging the inverse DWT-ized channels into a single frame and converting the data type to uint8 to obtain optimal result
     f = cv2.merge((eB,eG,eR)).astype(np.uint8)
     
     # cv2.imshow('Reconstructed frame',f)
