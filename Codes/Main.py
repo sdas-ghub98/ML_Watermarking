@@ -13,7 +13,6 @@ if __name__ == '__main__':
     nof,R,G,B,rf = ea.FrameCapture(ea.location + "Akiyo Video.mp4")
     
     #Performing frame subtraction on all the channels and returning them as lists
-    #r,g,b = The original random frame in 3 channels
     sbrf,sbgf,sbbf = ea.Frame_Subtract(nof,R,G,B,rf)
 
     #Applying two rounds of DWT on the random frame
@@ -80,6 +79,8 @@ if __name__ == '__main__':
     eR = ea.IDWT(dR,LLR2,HHR1)
     eG = ea.IDWT(dG,LLG2,HHG1)
     eB = ea.IDWT(dB,LLB2,HHB1)
+    
+    #Merging the inverse DWT-ized channels into a single frame and converting the data type to uint8 to obtain optimal result
     f = cv2.merge((eB,eG,eR)).astype(np.uint8)
     
     # cv2.imshow('Reconstructed frame',f)
@@ -88,16 +89,20 @@ if __name__ == '__main__':
 
     print("-------------- Inverse DWT applied twice on the RGB channels --------------")
 
-    # Reconstructing the watermarked frame
+    # Adding the watermarked frame to the subtracted frames
     watermarked_frames = ea.Add_to_Subtracted_Frames(f,sbrf,sbgf,sbbf,nof)
 
     print("-------------- Watermarked frames constructed --------------")
 
+    # Creating video using these watermarked frames
     ea.Create_Video_From_Frames(watermarked_frames)
 
 
     print("-------------- Watermarked video constructed --------------")
     
+<<<<<<< HEAD
     stop = timeit.default_timer()
 
     print('Total time taken for embedding algo to work : ',stop-start,'seconds')
+=======
+>>>>>>> f89494102a1a5cf946c0efb91ef69176269bfcc6
