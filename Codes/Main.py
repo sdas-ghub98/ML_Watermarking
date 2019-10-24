@@ -86,11 +86,12 @@ if __name__ == '__main__':
 
     print("-------------- Inverse DWT applied twice on the RGB channels --------------")
 
-    # Reconstructing the watermarked frame
+    # Adding the watermarked frame to the subtracted frames
     watermarked_frames = ea.Add_to_Subtracted_Frames(f,sbrf,sbgf,sbbf,nof)
 
     print("-------------- Watermarked frames constructed --------------")
 
+    # Creating video using these watermarked frames
     ea.Create_Video_From_Frames(watermarked_frames)
 
     print("-------------- Watermarked video constructed --------------")
