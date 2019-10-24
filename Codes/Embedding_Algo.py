@@ -77,10 +77,6 @@ def ApplyDWT_Frames(rf):
     LLG1,HHG1 = pywt.dwt(g,'db1')
     LLB1,HHB1 = pywt.dwt(b,'db1')
 
-    # tR = pywt.idwt(LLR1,HHR1,'db1').astype(uint8)
-    # tG = pywt.idwt(LLG1,HHG1,'db1')
-    # tB = pywt.idwt(LLB1,HHB1,'db1')
-
     # cv2.imshow('Red DWT Frame',LLR1)
     # cv2.waitKey(4000)
     # cv2.imshow('Green DWT Frame',LLG1)
@@ -99,12 +95,8 @@ def ApplyDWT_Frames(rf):
     LLG2,HHG2 = pywt.dwt(LLG1,'db1')
     LLB2,HHB2 = pywt.dwt(LLB1,'db1')
 
-    # cv2.imshow('Red DWT Frame',HHR2)
-    # cv2.waitKey(4000)
-
     print("-------------- DWT applied twice on frames (once on normal and then on LL sub band.) Returning the HH sub bands --------------")
     return LLR1,HHR1,LLR2,HHR2,LLG1,HHG1,LLG2,HHG2,LLB1,HHB1,LLB2,HHB2
-    # return HHR2,HHG2,HHB2
         
 #Applying two rounds of DWT to the logo image
 def ApplyDWT_Logo():
@@ -127,8 +119,6 @@ def ApplySVD(mat):
 
 #Function to add the singular matrix S
 def Singular_S_Adder(s1,s2):
-    # a = resize(s2,s1.shape)
-    # s3 = cv2.add(0.1*s1,0.1*s2)
     s3 = s1+s2
     # cv2.imshow('Watermarked S matrice',s3)
     # cv2.waitKey(1000)
@@ -153,7 +143,6 @@ def IDWT(a,b,c):
     # print(temp.shape)
     temp2 = pywt.idwt(temp,c, 'db1')
     # print(temp2.shape)
-    # print('-------------- Inverse DWT applied --------------')
     return temp2
 
 #Function to add the watermark on each channel of subtracted frames
