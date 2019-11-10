@@ -1,10 +1,11 @@
 import Embedding_Algo as ea
+import Extraction_Algo as exa
 import numpy as np
 import cv2
 import timeit
 
 if __name__ == '__main__': 
-    
+##########################################################################################################################################    
     #EMBEDDING ALGORITHM
 
     start = timeit.default_timer()
@@ -80,7 +81,7 @@ if __name__ == '__main__':
     eG = ea.IDWT(dG,LLG2,HHG1)
     eB = ea.IDWT(dB,LLB2,HHB1)
     
-    #Merging the inverse DWT-ized channels into a single frame and converting the data type to uint8 to obtain optimal result
+    #Merging the watermarked channels after Inverse DWT
     f = cv2.merge((eB,eG,eR)).astype(np.uint8)
     
     # cv2.imshow('Reconstructed frame',f)
@@ -100,9 +101,47 @@ if __name__ == '__main__':
 
     print("-------------- Watermarked video constructed --------------")
     
-<<<<<<< HEAD
     stop = timeit.default_timer()
 
     print('Total time taken for embedding algo to work : ',stop-start,'seconds')
-=======
->>>>>>> f89494102a1a5cf946c0efb91ef69176269bfcc6
+
+
+##########################################################################################################################################
+
+
+    #EXTRACTION ALGORITHM
+
+    #Taking the first frame of watermarked video and splitting it into R,G and B channels
+    rw,gw,bw = exa.FrameCapture(exa.location + 'Watermarked Video.avi')
+
+    #Applying DWT twice on the frame
+    HHWR,HHWG,HHWB = exa.applyDWT(rw,gw,bw)
+
+    #Applying SVD on the HH sub band
+    uwr,swr,vtwr = exa.applySVD(HHWR)
+    uwg,swg,vtwg = exa.applySVD(HHWG)
+    uwb,swb,vtwb = exa.applySVD(HHWB)
+
+    #Taking the first frame of the non-watermarked video
+    rnw,bnw,gnw = exa.FrameCapture(exa.location + 'Akiyo Video.mp4')
+
+    #Applying DWT twice on the non-watermarked frame
+    HHNWR,HHNWG,HHNWB = exa.applyDWT(rnw,gnw,bnw)
+
+    #Applying SVD on the non-watermarked frame
+    unwr,snwr,vtnwr = exa.applySVD(HHNWR)
+    unwg,snwg,vtnwg = exa.applySVD(HHNWG)
+    unwb,snwb,vtnwb = exa.applySVD(HHNWB)
+
+    #Subtracting the singular values
+    red_logo = cv2.subtract(uwr,unwr)
+    green_logo = cv2.subtract(uwg,unwg)
+    blue_logo = cv2.subtract(uwb,unwb)
+
+    # Reconstructing the watermark
+    res = exa.Watermark_Processing(red_logo,green_logo,blue_logo)
+
+    cv2.imshow('Logo',res)
+    cv2.waitKey(3000)
+    cv2.destroyAllWindows()
+    
