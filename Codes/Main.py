@@ -103,7 +103,7 @@ if __name__ == '__main__':
     
     stop = timeit.default_timer()
 
-    print('Total time taken for embedding algo to work : ',stop-start,'seconds')
+    print('Total time taken for embedding algo to work : ',stop-start,'seconds\n\n\n\n\n\n')
 
 
 ##########################################################################################################################################
@@ -113,20 +113,37 @@ if __name__ == '__main__':
 
     #Taking the first frame of watermarked video and splitting it into R,G and B channels
     rw,gw,bw = exa.FrameCapture(exa.location + 'Watermarked Video.avi')
+    print("-------------- Taking the first frame from watermarked video and splitting into RGB frames --------------")
+    # cv2.imshow('Red frame',rw)
+    # cv2.waitKey(3000)
+    # cv2.destroyAllWindows()
 
     #Applying DWT twice on the frame
     HHWR,HHWG,HHWB = exa.applyDWT(rw,gw,bw)
+    # cv2.imshow('HH Red',HHWR)
+    # cv2.waitKey(3000)
+    # cv2.destroyAllWindows()
 
     #Applying SVD on the HH sub band
     uwr,swr,vtwr = exa.applySVD(HHWR)
+    # cv2.imshow('Red U',uwr)
+    # cv2.waitKey(3000)
+    # cv2.destroyAllWindows()
     uwg,swg,vtwg = exa.applySVD(HHWG)
     uwb,swb,vtwb = exa.applySVD(HHWB)
 
     #Taking the first frame of the non-watermarked video
     rnw,bnw,gnw = exa.FrameCapture(exa.location + 'Akiyo Video.mp4')
+    # cv2.imshow('Red non watermarked',rnw)
+    # cv2.waitKey(3000)
+    # cv2.destroyAllWindows()
+    print("-------------- Taking the first frame of non-watermarked video and splitting into RGB frames --------------")
 
     #Applying DWT twice on the non-watermarked frame
     HHNWR,HHNWG,HHNWB = exa.applyDWT(rnw,gnw,bnw)
+    # cv2.imshow('Red non watermarked HH',HHNWR)
+    # cv2.waitKey(3000)
+    # cv2.destroyAllWindows()
 
     #Applying SVD on the non-watermarked frame
     unwr,snwr,vtnwr = exa.applySVD(HHNWR)
@@ -134,12 +151,15 @@ if __name__ == '__main__':
     unwb,snwb,vtnwb = exa.applySVD(HHNWB)
 
     #Subtracting the singular values
-    red_logo = cv2.subtract(uwr,unwr)
-    green_logo = cv2.subtract(uwg,unwg)
-    blue_logo = cv2.subtract(uwb,unwb)
+    red_logo = uwr - unwr
+    green_logo = uwg - unwg
+    blue_logo = uwb - unwb
+
+    #Get SVD values from original logo file
+    ur,vtr,ug,vtg,ub,vtb = exa.GetOriginalUSVT()
 
     # Reconstructing the watermark
-    res = exa.Watermark_Processing(red_logo,green_logo,blue_logo)
+    res = exa.Watermark_Processing(red_logo,green_logo,blue_logo,ur,vtr,ug,vtg,ub,vtb)
 
     cv2.imshow('Logo',res)
     cv2.waitKey(3000)
