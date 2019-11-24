@@ -112,6 +112,7 @@ if __name__ == '__main__':
 
     #EXTRACTION ALGORITHM
 
+    start2 = timeit.default_timer()
     #Taking the first frame of watermarked video and splitting it into R,G and B channels
     rw,gw,bw = exa.FrameCapture(exa.location + 'Watermarked Video.avi')
     print("-------------- Taking the first frame from watermarked video and splitting into RGB frames --------------")
@@ -165,9 +166,12 @@ if __name__ == '__main__':
     cv2.imshow('Extracted Watermark',res)
     cv2.waitKey(3000)
     cv2.destroyAllWindows()
+    stop2 = timeit.default_timer()
     
     #Saving the watermark
     cv2.imwrite(exa.location + 'Watermark_Extracted.png', res)
     print("-------------- Saving the watermarked image --------------")
+
+    print('Total time taken for extraction algo to work : ',stop2-start2,'seconds\n\n\n\n\n\n')
 
 ########################################################################################################################################## 
