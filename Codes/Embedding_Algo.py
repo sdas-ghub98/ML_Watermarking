@@ -158,7 +158,7 @@ def Create_Video_From_Frames(wmkd_frames):
     fps = 30
     x,y,z = wmkd_frames[0].shape
     size = (y,x)
-    out = cv2.VideoWriter(location + 'Watermarked Video.avi',cv2.VideoWriter_fourcc(*'DIVX'), fps, size)
+    out = cv2.VideoWriter(location + 'Watermarked Video.avi', cv2.VideoWriter_fourcc(*'DIVX'), fps, size)
     for i in range(0,len(wmkd_frames)):
         out.write(wmkd_frames[i])
     out.release()

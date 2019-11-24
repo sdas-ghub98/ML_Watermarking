@@ -84,9 +84,9 @@ if __name__ == '__main__':
     #Merging the watermarked channels after Inverse DWT
     f = cv2.merge((eB,eG,eR)).astype(np.uint8)
     
-    # cv2.imshow('Reconstructed frame',f)
-    # cv2.waitKey(3000)
-    # cv2.destroyAllWindows()
+    cv2.imshow('Reconstructed frame',f)
+    cv2.waitKey(3000)
+    cv2.destroyAllWindows()
 
     print("-------------- Inverse DWT applied twice on the RGB channels --------------")
 
@@ -156,12 +156,18 @@ if __name__ == '__main__':
     blue_logo = uwb - unwb
 
     #Get SVD values from original logo file
-    ur,vtr,ug,vtg,ub,vtb = exa.GetOriginalUSVT()
+    ur,vtr,ug,vtg,ub,vtb,LLR3,HHR3,LLG3,HHG3,LLB3,HHB3,LLR4,HHR4,LLG4,HHG4,LLB4,HHB4 = exa.GetOriginalUSVT()
 
     # Reconstructing the watermark
-    res = exa.Watermark_Processing(red_logo,green_logo,blue_logo,ur,vtr,ug,vtg,ub,vtb)
+    res = exa.Watermark_Processing(red_logo,green_logo,blue_logo,ur,vtr,ug,vtg,ub,vtb,LLR3,HHR3,LLG3,HHG3,LLB3,HHB3,LLR4,HHR4,LLG4,HHG4,LLB4,HHB4)
 
-    cv2.imshow('Logo',res)
+    cv2.imshow('Extracted Watermark',res)
     cv2.waitKey(3000)
     cv2.destroyAllWindows()
     
+    #Saving the watermark
+    cv2.imwrite(exa.location + 'Watermark_Extracted.png', res)
+    print("-------------- Saving the watermarked image --------------")
+
+##########################################################################################################################################
+  

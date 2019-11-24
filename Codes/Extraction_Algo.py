@@ -1,17 +1,16 @@
 import cv2
 import pywt
 from scipy.linalg import svd
-from numpy import zeros,dot
+from numpy import zeros,dot,uint8
 
 location = '../Dataset/'
 
 def FrameCapture(path):
     cap = cv2.VideoCapture(path)
-    count = 0 
+    count = 0
     success = 1
     success,image = cap.read()
     b,g,r = cv2.split(image)
-
     return r,g,b
 
 def applyDWT(redframe,greenframe,blueframe):
@@ -36,41 +35,41 @@ def applyInverseSVD(u,s,vt):
     n,_ = vt.shape
     Sigma = zeros((m,n))
     for i in range(min(m,n)):
-        Sigma[i,i] = s[i]
+        Sigma[i,i] = s[i,i]
     B = dot(u,dot(Sigma,vt))
     # print(B.shape)
     return B
 
-def applyIDWT(mat):
-    temp = pywt.idwt(None,mat,'db1')
-    temp2 = pywt.idwt(temp,None,'db1')
+def applyIDWT(a,b,c):
+    temp = pywt.idwt(b,a,'db1')
+    temp2 = pywt.idwt(temp,c,'db1')
     return temp2
 
 def GetOriginalUSVT():
     src = cv2.imread(location + 'logo.png')
     b2,g2,r2 = cv2.split(src)
     
-    LLR,_ = pywt.dwt(r2,'db1')
-    _,HHR = pywt.dwt(LLR,'db1')
-    LLG,_ = pywt.dwt(g2,'db1')
-    _,HHG = pywt.dwt(LLG,'db1')
-    LLB,_ = pywt.dwt(b2,'db1')
-    _,HHB = pywt.dwt(LLB,'db1')
+    LLR3,HHR3 = pywt.dwt(r2,'db1')
+    LLR4,HHR4 = pywt.dwt(LLR3,'db1')
+    LLG3,HHG3 = pywt.dwt(g2,'db1')
+    LLG4,HHG4 = pywt.dwt(LLG3,'db1')
+    LLB3,HHB3 = pywt.dwt(b2,'db1')
+    LLB4,HHB4 = pywt.dwt(LLB3,'db1')
 
-    ur,_,vtr = svd(HHR,full_matrices=True)
-    ug,_,vtg = svd(HHG,full_matrices=True)
-    ub,_,vtb = svd(HHB,full_matrices=True)
+    ur,_,vtr = svd(HHR4,full_matrices=True)
+    ug,_,vtg = svd(HHG4,full_matrices=True)
+    ub,_,vtb = svd(HHB4,full_matrices=True)
 
-    return ur,vtr,ug,vtg,ub,vtb
-def Watermark_Processing(r,g,b,ur,vtr,ug,vtg,ub,vtb):
+    return ur,vtr,ug,vtg,ub,vtb,LLR3,HHR3,LLG3,HHG3,LLB3,HHB3,LLR4,HHR4,LLG4,HHG4,LLB4,HHB4
+def Watermark_Processing(r,g,b,ur,vtr,ug,vtg,ub,vtb,LLR3,HHR3,LLG3,HHG3,LLB3,HHB3,LLR4,HHR4,LLG4,HHG4,LLB4,HHB4):
 
     r3 = applyInverseSVD(ur,r,vtr)
     g3 = applyInverseSVD(ug,g,vtg)
     b3 = applyInverseSVD(ub,b,vtb)
 
-    ir = applyIDWT(r3)
-    ig = applyIDWT(g3)
-    ib = applyIDWT(b3)
+    ir = applyIDWT(r3,LLR4,HHR3)
+    ig = applyIDWT(g3,LLG4,HHG3)
+    ib = applyIDWT(b3,LLB4,HHB3)
 
     res = cv2.merge((ib,ig,ir)).astype(uint8)
     return res
