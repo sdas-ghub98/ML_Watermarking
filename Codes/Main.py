@@ -87,6 +87,7 @@ if __name__ == '__main__':
     cv2.imshow('Reconstructed frame',f)
     cv2.waitKey(3000)
     cv2.destroyAllWindows()
+    cv2.imwrite(ea.location + 'Embedded Algorithm.png', f)
 
     print("-------------- Inverse DWT applied twice on the RGB channels --------------")
 
@@ -169,5 +170,4 @@ if __name__ == '__main__':
     cv2.imwrite(exa.location + 'Watermark_Extracted.png', res)
     print("-------------- Saving the watermarked image --------------")
 
-##########################################################################################################################################
-  
+########################################################################################################################################## 
