@@ -128,11 +128,11 @@ if __name__ == '__main__':
 
     #Applying SVD on the HH sub band
     uwr,swr,vtwr = exa.applySVD(HHWR)
+    uwg,swg,vtwg = exa.applySVD(HHWG)
+    uwb,swb,vtwb = exa.applySVD(HHWB)
     # cv2.imshow('Red U',uwr)
     # cv2.waitKey(3000)
     # cv2.destroyAllWindows()
-    uwg,swg,vtwg = exa.applySVD(HHWG)
-    uwb,swb,vtwb = exa.applySVD(HHWB)
 
     #Taking the first frame of the non-watermarked video
     rnw,bnw,gnw = exa.FrameCapture(exa.location + 'Akiyo Video.mp4')

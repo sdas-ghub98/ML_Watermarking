@@ -35,7 +35,7 @@ def applyInverseSVD(u,s,vt):
     n,_ = vt.shape
     Sigma = zeros((m,n))
     for i in range(min(m,n)):
-        Sigma[i,i] = s[i,i]
+        Sigma[i,i] = s[i]
     B = dot(u,dot(Sigma,vt))
     # print(B.shape)
     return B
@@ -56,16 +56,16 @@ def GetOriginalUSVT():
     LLB3,HHB3 = pywt.dwt(b2,'db1')
     LLB4,HHB4 = pywt.dwt(LLB3,'db1')
 
-    ur,_,vtr = svd(HHR4,full_matrices=True)
-    ug,_,vtg = svd(HHG4,full_matrices=True)
-    ub,_,vtb = svd(HHB4,full_matrices=True)
+    _,sr,vtr = svd(HHR4,full_matrices=True)
+    _,sg,vtg = svd(HHG4,full_matrices=True)
+    _,sb,vtb = svd(HHB4,full_matrices=True)
 
-    return ur,vtr,ug,vtg,ub,vtb,LLR3,HHR3,LLG3,HHG3,LLB3,HHB3,LLR4,HHR4,LLG4,HHG4,LLB4,HHB4
-def Watermark_Processing(r,g,b,ur,vtr,ug,vtg,ub,vtb,LLR3,HHR3,LLG3,HHG3,LLB3,HHB3,LLR4,HHR4,LLG4,HHG4,LLB4,HHB4):
+    return sr,vtr,sg,vtg,sb,vtb,LLR3,HHR3,LLG3,HHG3,LLB3,HHB3,LLR4,HHR4,LLG4,HHG4,LLB4,HHB4
+def Watermark_Processing(r,g,b,sr,vtr,sg,vtg,sb,vtb,LLR3,HHR3,LLG3,HHG3,LLB3,HHB3,LLR4,HHR4,LLG4,HHG4,LLB4,HHB4):
 
-    r3 = applyInverseSVD(ur,r,vtr)
-    g3 = applyInverseSVD(ug,g,vtg)
-    b3 = applyInverseSVD(ub,b,vtb)
+    r3 = applyInverseSVD(r,sr,vtr)
+    g3 = applyInverseSVD(g,sg,vtg)
+    b3 = applyInverseSVD(b,sb,vtb)
 
     ir = applyIDWT(r3,LLR4,HHR3)
     ig = applyIDWT(g3,LLG4,HHG3)
