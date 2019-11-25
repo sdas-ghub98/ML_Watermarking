@@ -1,4 +1,4 @@
-# 
+# Robust and Hybrid Video Watermarking using SVD, DWT and Frame Difference
 This repository is a partial implementation of the research paper titled 'A Robust Color Video Watermarking Technique Using DWT, SVD and Frame Diﬀerence' which has been published in PReM17 Proceedings. The implementation has been done using Python programming language and utilizes the following libraries:
 
 <ul>
